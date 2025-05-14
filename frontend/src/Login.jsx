@@ -10,7 +10,7 @@ function Login(props){
   async function handleSubmit(){
     try{
         const endpoint = isSignUp ? 'signup' : 'login';
-        const response = await fetch(`https://messaging-application.onrender.com/${endpoint}`, {
+        const response = await fetch(`https://messaging-application-c9s5.onrender.com/${endpoint}`, {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: username, password: password}),
