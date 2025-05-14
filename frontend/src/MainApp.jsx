@@ -27,7 +27,7 @@ function MainApp({username}){
     }
 
     useEffect(() => {
-        const ws = new WebSocket(`wss://your-backend.onrender.com/ws/${username}`);
+        const ws = new WebSocket(`wss://messaging-application.onrender.com/ws/${username}`);
     
         ws.onopen = () => {
           console.log("WebSocket connected"); 
@@ -75,7 +75,7 @@ function MainApp({username}){
             if (!targetUser) return;
             
             try {
-                const response = await fetch(`https://your-backend.onrender.com/get_messages?user1=${username}&user2=${targetUser}`);
+                const response = await fetch(`https://messaging-application.onrender.com/get_messages?user1=${username}&user2=${targetUser}`);
                 if (response.ok) {
                     const data = await response.json();
                     setMessages(data);
