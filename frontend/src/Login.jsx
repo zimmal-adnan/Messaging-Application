@@ -12,7 +12,7 @@ function Login(props){
         const endpoint = isSignUp ? 'signup' : 'login';
         const response = await fetch(`https://your-backend.onrender.com/${endpoint}`, {
         method: 'POST', 
-        headers: {'Content-Type': 'application/json',},
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username: username, password: password}),
     });
 
