@@ -119,7 +119,7 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                     onChange={(e) => setRequestInput(e.target.value)}
                     placeholder="Enter username..."
                 />
-                <button className="request-button" onClick={SendRequest}>Send Request</button>
+                <button className="request-button" onClick={SendRequest}>►</button>
             </div>
 
             <div>

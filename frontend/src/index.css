@@ -276,18 +276,20 @@ body{
   width: 70%;
 }
 
+
 @media (max-width: 600px) {
   .friends-div h2{
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .friends-panel{
     overflow: hidden;
+    
   }
 
   .friends-panel.visible {
-    width: 35%; 
-    min-width: 200px;
+    min-width: 8rem;
+    
   }
   
   .friends-panel.visible ~ .main-chat {
@@ -296,22 +298,21 @@ body{
   
   .showFriendsBtn {
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: 10px;
   }
 
   .input-username{
-    padding: 11px;
-    width: 7.5rem;
-    margin-left: -5px;
+    padding: 10px;
+    width: 6.6rem;
+    margin-left: -10px;
     font-size: 10px;
   }
 
   .request-button{
     font-size: 10px;
-    width: 5rem;
-    padding: 7px 10px;
-    top: 5px;
-    margin-left: 5px;
+    width: 2rem;
+    padding: 11px 10px;
+    left: -20px;
   }
 }
 
@@ -509,21 +510,23 @@ ol li::marker {
   
 @media (max-width: 600px) {
   .sendBtn{
-    width: 30%;
-    font-size: 12px;
-    padding: 11px;
+    width: 1.5rem;
+    font-size: 10px;
+    padding: 10px 2px;
+    
   }
 
   .message-input{
-    font-size: 13px;
+    font-size: 10px;
+    
   }
 
   .friends-div p{
-    font-size: 15px;
+    font-size: 0.9rem;
   }
 
   .chat-with{
-    font-size: 16px;
+    font-size: 0.9rem;
   }
 
   .message-content{

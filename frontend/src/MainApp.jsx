@@ -126,7 +126,7 @@ function MainApp({username}){
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                     />
-                    <button className = "sendBtn" onClick={sendMessage} disabled={!targetUser}>SEND</button>
+                    <button className = "sendBtn" onClick={sendMessage} disabled={!targetUser}>►</button>
                     </div>
                 </div>
             </div>

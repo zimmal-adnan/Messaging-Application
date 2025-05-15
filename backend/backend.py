@@ -378,10 +378,6 @@ async def login(data: LoginRequest):
     if password != stored_password:
         raise HTTPException(400, "Incorrect password")
     
-    #if someone is already logged in with that username, reject login
-    if username in manager.user_connections:
-        raise HTTPException(400, "Username taken")
-    
     #add them to the database if username is fine
     db.add_or_update_user(username, password, online=True)
     #return a success response to the client
