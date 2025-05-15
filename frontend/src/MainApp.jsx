@@ -104,7 +104,7 @@ function MainApp({username}){
                 </div>
                 
                 {/* Chat Section */}
-                <div style={{ width: showFriendsPanel ? "70%" : "100%", padding: "10px", transition: "width 0.3s ease-out" }}>
+                <div className = "main-chat">
                     <h2 className='chat-with'>CHAT WITH {targetUser || "..."}</h2>
                     <div className="chat-box">
                         {conversationMessages.map((msg, index) => (

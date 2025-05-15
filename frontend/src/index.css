@@ -195,7 +195,7 @@ body{
   color: rgb(146, 132, 0);
   border: 1px solid rgba(146, 132, 0, 0.596);
   background-color: rgb(255, 255, 147);
-  position: relative; 
+  position: relative;
   left: -30px;
   z-index: 1;
   transition: all 0.2s ease;
@@ -205,8 +205,8 @@ body{
 
 .request-button:hover {
   opacity: 0.85;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
 }
 
 .input-username {
@@ -253,16 +253,16 @@ body{
 
 
 .friends-panel {
-  width: 30%;
-  min-width: 300px;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-out;
+  transform: translateX(-120%);
+  transition: all 0.3s ease-out;
   position: relative;
   top: 3.5rem;
 }
 
 .friends-panel.visible {
   transform: translateX(0);
+  width: 30%;
+  min-width: 280px;
 }
 
 .friends-div h2{
@@ -272,9 +272,58 @@ body{
   
 }
 
+.friends-panel.visible ~ .main-chat {
+  width: 70%;
+}
+
+@media (max-width: 600px) {
+  .friends-div h2{
+    font-size: 16px;
+  }
+
+  .friends-panel{
+    overflow: hidden;
+  }
+
+  .friends-panel.visible {
+    width: 35%; 
+    min-width: 200px;
+  }
+  
+  .friends-panel.visible ~ .main-chat {
+    width: 55%;
+  }
+  
+  .showFriendsBtn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .input-username{
+    padding: 11px;
+    width: 7.5rem;
+    margin-left: -5px;
+    font-size: 10px;
+  }
+
+  .request-button{
+    font-size: 10px;
+    width: 5rem;
+    padding: 7px 10px;
+    top: 5px;
+    margin-left: 5px;
+  }
+}
+
+.main-chat {
+  width: 100%;
+  padding: 10px;
+  transition: width 0.3s ease-out;
+}
+
 .friends-div p{
   font-family: "Lato";
-  font-size: 15px;
+  font-size: 16px;
   position: relative;
   top: -10px;
 }
@@ -302,13 +351,15 @@ ol li::marker {
 }
 
 .img-response{
-  background-image: url('/public/tick.jpg');
+  
   height: 20px;
   width: auto;
   position: relative;
   left: -7px;
   top: -2px;
 }
+
+
 
 .remove-button{
   border-radius: 100rem;
@@ -333,11 +384,25 @@ ol li::marker {
   text-align: left;
   justify-content: center;
   letter-spacing: 10px;
-  padding: 20px;
+  padding: 15px;
   font-size: 3rem;
   font-family: "Retro";
   font-weight: bold;
   color:rgba(0, 0, 0, .7)
+}
+
+@media (max-width: 600px){
+  .friend-response{
+    left: 5em;
+  }
+  
+  .introduction{
+    font-size: 2.5rem;
+  }
+  .remove-button{
+    left: 7em;
+    font-size: 8px;
+  }
 }
 
 .chat-box{
@@ -428,12 +493,13 @@ ol li::marker {
   border: 2px solid rgb(156, 80, 103);
   background-color: rgba(255, 112, 155);
   position: absolute; 
-  width: 10%;
+  width: 5rem;
   right: 0;
   z-index: 1;
   transition: all 0.2s ease;
   flex-grow: 1;
 }
+
 
 .sendBtn:hover{
   cursor: pointer;
@@ -441,10 +507,32 @@ ol li::marker {
 
 }
   
-@media (max-width: 700px) {
+@media (max-width: 600px) {
   .sendBtn{
     width: 30%;
-}
+    font-size: 12px;
+    padding: 11px;
+  }
+
+  .message-input{
+    font-size: 13px;
+  }
+
+  .friends-div p{
+    font-size: 15px;
+  }
+
+  .chat-with{
+    font-size: 16px;
+  }
+
+  .message-content{
+    font-size: 14px;
+  }
+  
+  .message-time{
+    font-size: 0.6em;
+  }
 }
 
 .confirmation-box {
@@ -505,3 +593,4 @@ ol li::marker {
 #cancel-button:hover{
   box-shadow: 0px 0px 10px rgba(170, 0, 0, 0.4);
 }
+
