@@ -1,23 +1,9 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-#WebSocket creates real-time connections (not normal HTTP)
-#WebSocketDisconnects is a special exception fastAPI throws when a WebSocket disconnects (someone closes the tab)
-#HTTPException can throw custom errors
-
 from fastapi.middleware.cors import CORSMiddleware
-#Middleware is a piece of software that runs before the request reaches the code
-#CORS: Cross-Origin Resource Sharing
-#front-end can connect to back-end
-#Browsers block any unsafe connections by default, CORS opens them safely
-
 import sqlite3
 import uuid
-
-#helps say what types variables should be
-#variables can change types anytime, so this is to prevent that
-from typing import Dict, List
+from typing import Dict
 from datetime import datetime
-
-#validates and defines the expected shape of incoming data
 from pydantic import BaseModel
 
 
@@ -34,15 +20,16 @@ class FriendResponse(BaseModel):
     response: str  
 
 class Message(BaseModel):
+    sender: str
     recipient: str
     content: str
 
 
 #---FastAPI setup---
+
 app = FastAPI()
 #app holds the entire server (endpoints, websockets, middlewares)
 #any request that is made goes through this app
-
 
 #removes any restrictions so that the front-end can talk to the back-end without the browser blocking it
 app.add_middleware(
@@ -54,7 +41,7 @@ app.add_middleware(
 )
 
 #---Database---
-#handles database actions for users and friendships
+#handles database actions for users, friendships and messages
 class Database:
     #called when you make a new Database() object
     def __init__(self):
@@ -63,10 +50,11 @@ class Database:
         self.connection = sqlite3.connect("user.db", check_same_thread=False)
         self.create_tables()
     
+
     #create the users and friends tables if they don't already exist
     def create_tables(self):
-        #cursor allows you to send SQL commands to the database
         cursor = self.connection.cursor()
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
@@ -77,14 +65,14 @@ class Database:
         """)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS friends (
-                relationship_id INTEGER PRIMARY KEY, --unique number created for each friend request/relationship
+                relationship_id INTEGER PRIMARY KEY, 
                 user_id INTEGER NOT NULL, --user who initiated the friendship
-                friend_id INTEGER NOT NULL, --target friend
+                friend_id INTEGER NOT NULL, 
                 status TEXT NOT NULL CHECK(status IN ('pending', 'accepted', 'declined')),
                 action_user_id INTEGER NOT NULL, --id of the user who took the last action
                 FOREIGN KEY(user_id) REFERENCES users(user_id),
                 FOREIGN KEY(friend_id) REFERENCES users(user_id),
-                UNIQUE(user_id, friend_id) --no duplicate friendships (multiple requests cannot be sent, so it is a must for this combination to be unique.
+                UNIQUE(user_id, friend_id) --no duplicate friendships (multiple requests cannot be sent, so it is a must for this combination to be unique)
             )
         """)
 
@@ -99,12 +87,14 @@ class Database:
                 FOREIGN KEY(recipient_id) REFERENCES users(user_id)                  
             )
         """)
-        #save all the table creation to the database permanently
         self.connection.commit()
 
+
+    #stores messages into the database 
     def save_message(self, sender: str, recipient: str, content: str):
         cursor = self.connection.cursor()
         
+        #get user_id of both the sender and the recipient
         cursor.execute("SELECT user_id FROM users WHERE username=?", (sender,))
         sender_id = cursor.fetchone()[0]
         cursor.execute("SELECT user_id FROM users WHERE username=?", (recipient,))
@@ -116,6 +106,8 @@ class Database:
         """, (sender_id, recipient_id, content))
         self.connection.commit()
     
+
+    #retrieves conversation history between two users
     def get_conversation(self, user1: str, user2: str):
         cursor = self.connection.cursor()
         
@@ -124,14 +116,15 @@ class Database:
         cursor.execute("SELECT user_id FROM users WHERE username=?", (user2,))
         user2_id = cursor.fetchone()[0]
         
+        #looks for all chat messages between two users and returns them
         cursor.execute("""
             SELECT u1.username as sender, u2.username as recipient, m.content, m.timestamp
             FROM messages m
-            JOIN users u1 ON m.sender_id = u1.user_id
-            JOIN users u2 ON m.recipient_id = u2.user_id
+            JOIN users u1 ON m.sender_id = u1.user_id --get the sender's username
+            JOIN users u2 ON m.recipient_id = u2.user_id --get the recipient's username
             WHERE (m.sender_id = ? AND m.recipient_id = ?)
-            OR (m.sender_id = ? AND m.recipient_id = ?)
-            ORDER BY m.timestamp
+            OR (m.sender_id = ? AND m.recipient_id = ?) --grabs messages in both driections
+            ORDER BY m.timestamp 
         """, (user1_id, user2_id, user2_id, user1_id))
         
         return [{
@@ -139,8 +132,9 @@ class Database:
             'recipient': row[1],
             'content': row[2],
             'timestamp': row[3]
-        } for row in cursor.fetchall()]
+        } for row in cursor.fetchall()] #get all the messages
     
+
     #add a user if they are new, or update their online status if they already exist
     def add_or_update_user(self, username: str, password: str, online: bool = True):
         cursor = self.connection.cursor()
@@ -148,44 +142,49 @@ class Database:
         cursor.execute("UPDATE users SET online = ?, password = ? WHERE username = ?", (online, password, username))
         self.connection.commit()
 
+
     #mark the user offline
     def set_user_offline(self, username: str, password: str):
         self.add_or_update_user(username, password, online=False)
 
+
+    #remove a friend from the user's friend list
     def remove_friend(self, current_user: str, target_user: str) -> bool:
         cursor = self.connection.cursor()
+
+        #get the user_id of the user removed
         cursor.execute("SELECT user_id FROM users WHERE username=?", (target_user,))
         result = cursor.fetchone()
         if not result:
             return False
         target_id = result[0]
 
+        #get the user_id of the user removing
         cursor.execute("SELECT user_id FROM users WHERE username=?", (current_user,))
         result = cursor.fetchone()
         if not result:
             return False
         current_id = result[0]
         
+        #delete the friend relationship
         cursor.execute("DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)", (current_id, target_id, target_id, current_id ))
 
         self.connection.commit()
         return True
 
+
     #sends a friend request from one user to another
     def send_friend_request(self, sender_username: str, recipient_username: str):
         cursor = self.connection.cursor()
 
-        #sender's username user_id
+        #retrieve sender's user_id
         cursor.execute("SELECT user_id FROM users WHERE username=?", (sender_username,))
-        #get the first row found
         sender = cursor.fetchone()
-        #if no sender exists, abort
         if not sender:
             return False
-        #extract the actual user_id (it is in a tuple)
         sender_id = sender[0]
 
-        #recipient's username user_id
+        #retrieve recipient's user_id
         cursor.execute("SELECT user_id FROM users WHERE username=?", (recipient_username,))
         recipient = cursor.fetchone()
         if not recipient:
@@ -197,6 +196,7 @@ class Database:
                           WHERE (user_id=? AND friend_id=?) --check if sender already sent to recipient
                              OR (user_id=? AND friend_id=?) --check if recipient already sent to sender""", 
                        (sender_id, recipient_id, recipient_id, sender_id))
+        
         #if a row exists like that (connection already there), then don't send a new request
         if cursor.fetchone():
             return False  
@@ -207,12 +207,12 @@ class Database:
                           VALUES (?,?,?,?)""",
                        (sender_id, recipient_id, 'pending', sender_id))
         self.connection.commit()
-        return True #request was successfully sent
+        return True 
     
+
     #returns all friend requests sent to a specific user
     def get_pending_requests(self, username: str):
         cursor = self.connection.cursor()
-        #find user_id
         cursor.execute("SELECT user_id FROM users WHERE username=?", (username,))
         user_id = cursor.fetchone()[0]
         
@@ -223,13 +223,14 @@ class Database:
             JOIN users ON friends.user_id = users.user_id --find sender's username
             WHERE friends.friend_id = ? AND friends.status = 'pending' --where I am the target
         """, (user_id,))
+
         #return a list of all usernames from the database result
         return [row[0] for row in cursor.fetchall()]
+
 
     #returns all users who are friends
     def get_friends_list(self, username: str):
         cursor = self.connection.cursor()
-        #find user_id
         cursor.execute("SELECT user_id FROM users WHERE username=?", (username,))
         user_id = cursor.fetchone()[0]
         
@@ -240,8 +241,10 @@ class Database:
             JOIN users ON friends.friend_id = users.user_id 
             WHERE friends.user_id = ? AND friends.status = 'accepted'
         """, (user_id,))
+
         #return as a list of usernames
         return [row[0] for row in cursor.fetchall()]
+
 
     #accept or decline a friend request
     def respond_to_friend_request(self, responder_username, requester_username, response):
@@ -261,7 +264,7 @@ class Database:
             """, (requester_id, responder_id))
             
             if not cursor.fetchone():
-                return False  #if no pending request, abort
+                return False  
             
             #if accepted
             if response.lower() == 'accept':
@@ -303,27 +306,21 @@ class Database:
     #closes the database connection when the server is closed
     def close(self):
         self.connection.close()
-
 db = Database()
+
+
 
 #---WebSocket Manager---
 
-#keeps track of: which users are online and their WebSocket connections
-#handles connecting, disconnecting and sending updates
-#without this, our server would not know who is online
+#keeps track of online users and their WebSocket connections
 class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = {} #connection_id: WebSocket after two users connect
         self.user_connections: Dict[str, str] = {}  #username: connection_id
 
-    #when a user connects
-    #with async, python can start a task, then go do something else while waiting for the slow task to finish
-    #otherwise, without async, python would just freeze
+    #runs when a user connects
     async def connect(self, websocket: WebSocket, username: str):
-        #accepts WebSocket handshake
-        #await can only be used inside an async def. 
-        #await means let other code run, but pause here and wait for the result. Waiting for messages is slow, otherwise the server might completely freeze
-        #send real-time messages freely - the chat-pipe is open
+        #accepts WebSocket handshake - the chat-pipe is open so real-time messages can be sent freely
         await websocket.accept()
         print(f"WebSocket connected for {username}")
         #create a random unique ID for this connection
@@ -346,9 +343,8 @@ class ConnectionManager:
 
     #show online user list
     async def broadcast_user_list(self):
-        #get a list of all usernames who are currently online
         online_users = list(self.user_connections.keys())
-        #for every online user, send them this json message
+        #for every online user, send them this JSON message
         for connection in self.active_connections.values():
             print(f"Broadcasting user list: {online_users}")
             await connection.send_json({
@@ -359,69 +355,73 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 #---API Endpoints---
+
 #to process login
 @app.post("/login")
 async def login(data: LoginRequest):
     username = data.username
     password = data.password
-    #throws a 400 Bad Request error if no username
+
+    #if no username or password entered in the fields 
     if not username.strip() or not password.strip():
         raise HTTPException(400, "Username and password required")
     
     cursor = db.connection.cursor()
     cursor.execute("SELECT password FROM users WHERE username=?", (username,))
     result = cursor.fetchone()
-    if not result:
+    if not result: #if no username found
         raise HTTPException(400, "User does not exist")
-    
     stored_password = result[0]
-    if password != stored_password:
+    if password != stored_password: #if password entered does not match
         raise HTTPException(400, "Incorrect password")
     
-    #add them to the database if username is fine
+    #update the user's status to online
     db.add_or_update_user(username, password, online=True)
-    #return a success response to the client
-    #client can now open a WebSocket connection
+    
+    #return a success response to the client - client can now open the WebSocket
     return {"status": "success", "username": username}
 
+#loading messages
 @app.get("/get_messages")
 async def get_messages(user1: str, user2: str):
     messages = db.get_conversation(user1, user2)
     return messages
 
+#to process signup of a new user
 @app.post("/signup")
 async def signup(data: SignupRequest):
     username = data.username
     password = data.password
+
+    #if username or password field are left blank
     if not username.strip() or not password.strip():
         raise HTTPException(400, "Username and password required")
     
-    # Check if username already exists
+    #if username already exists
     cursor = db.connection.cursor()
     cursor.execute("SELECT 1 FROM users WHERE username=?", (username,))
     if cursor.fetchone():
         raise HTTPException(400, "Username already exists")
     
-    if len(password) < 4:  # Simple password length check
+    if len(password) < 4:  #password should be more than 4 characters
         raise HTTPException(400, "Password must be at least 4 characters")
     
-    # Add new user
+    #add the new user in the database
     db.add_or_update_user(username, password, online=True)
     return {"status": "success", "username": username}
 
 #create a WebSocket where clients can connect and talk in real-time
 @app.websocket("/ws/{username}")
 async def websocket_chat(websocket: WebSocket, username: str):
+    
     #accepts connection and saves the user into the list of online users
-    #await because accepting a connection can be slow
     connection_id = await manager.connect(websocket, username)
     try:
-        #sends a WebSocket message to every connected user, telling them about the updated list
+        #sends a WebSocket message to every connected user, informing them of the updated list
         await manager.broadcast_user_list()
         
         while True:
             #listen for any incoming JSON messages from the client
-            #server is waiting for a message from the user
             #the JSON string is automatically turned into a Python dictionary
             data = await websocket.receive_json()
 
@@ -440,50 +440,65 @@ async def websocket_chat(websocket: WebSocket, username: str):
                             "from": username
                         })
 
+            #if the user wants to remove a friend
             elif data["type"] == "remove_friend":
+                #retrieve the username of the user the client wants to remove
                 target_user = data["target"]
 
+                #if the function works
                 if db.remove_friend(username, target_user):
+                    #tell the client the removal was successful
                     await websocket.send_json({
                         "type": "friend_removed",
                         "target": target_user
                     })
 
+                    #if the unfriended user is online
                     if target_user in manager.user_connections:
+                        #get WebSocket connection of that user
                         target_ws = manager.active_connections[manager.user_connections[target_user]]
+                        #notify that friend that they have been removed
                         await target_ws.send_json({
                             "type": "friend_removed",
                             "removed_user": username
                         })
 
-
+            #when a user wants to send a message
             elif data["type"] == "message":
+                #get receiver's username and message content from the frontend
                 recipient = data["recipient"]
                 message = data["message"]
-                
+
+                #save the message in the database
                 db.save_message(username, recipient, message)
 
+                #if the recipient is online
                 if recipient in manager.user_connections:
+                    #get their WebSocket connection
                     recipient_ws = manager.active_connections[manager.user_connections[recipient]]
+                    #send the message to the recipient
                     await recipient_ws.send_json({
                         "type": "message",
                         "from": username,
                         "message": message
                     })
-
+                    #confirmation to the sender that the message was sent
                     await websocket.send_json({
                         "type": "message",
                         "to": recipient,
                         "message": message
                     })
 
+            #to display friend list
             elif data["type"] == "get_friends":
                 friends = db.get_friends_list(username)
+                #send the friend list
                 await websocket.send_json({
                     "type": "friends_list",
                     "friends": friends
                 })
 
+            #display pending friend requests
             elif data["type"] == "get_pending_requests":
                 pending = db.get_pending_requests(username)
                 await websocket.send_json({

@@ -4,6 +4,7 @@ body{
   margin: 30px;
 }
 
+/*---Fonts used---*/
 @font-face {
   font-family: 'Boldwinn';
   src: url('/public/Boldwinn.ttf') format('truetype');
@@ -39,6 +40,7 @@ body{
   font-style: normal;
 }
 
+/*---Login Section---*/
 .login{
   background-color: grey;
   display: flex;
@@ -53,16 +55,12 @@ body{
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  
-
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   padding: 2rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
   max-width: 90%;
   box-sizing: border-box;
 }
@@ -74,16 +72,15 @@ body{
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.5); /* Adjust opacity here */
+  background-color: rgba(255, 255, 255, 0.5); 
   z-index: 1;
   border-radius: 2rem;
 }
 
 .login > * {
   position: relative;
-  z-index: 2; /* Ensures content stays above overlay */
+  z-index: 2; 
 }
-
 
 .login label{
   font-family: "Raleway";
@@ -104,12 +101,12 @@ body{
   font-size: 12px;
 }
 
-
 .input-container{
 	position:relative;
 	margin-bottom:25px;
   width: 100%;
 }
+
 .input-container label{
 	position:absolute;
 	left:0px;
@@ -118,6 +115,8 @@ body{
   pointer-events: none;
   transition: all 0.5s ease-out
 }
+
+/*Input field where the user types their username and password*/
 .input-container input{ 
   border:0;
   border-bottom:1px solid #555;  
@@ -128,12 +127,12 @@ body{
   font-family: "Lato";
   color:black;
 }
+
 .input-container input:focus{ 
  border:none;	
  outline:none;
  border-bottom:1px solid rgb(155, 89, 100);
  transition: all 0.3s ease;
-
 }
 
 .input-container input:focus ~ label,
@@ -143,6 +142,7 @@ body{
     color: rgb(155, 89, 100);
 }
 
+/*Button to login*/
 .username-button{
   align-items: center;
   background-image: linear-gradient(#e4ffd4, #aad6aa);
@@ -181,9 +181,11 @@ body{
   
 
 
-/* Add to index.css */
+/*---MainApp Component---*/
+
+/*Send friend request button*/
 .request-container {
-  margin-top: 20px; /* Adjust this value to lower the entire request section */
+  margin-top: 20px; 
   margin-bottom: 20px;
 }
 
@@ -196,7 +198,8 @@ body{
   border: 1px solid rgba(146, 132, 0, 0.596);
   background-color: rgb(255, 255, 147);
   position: relative;
-  left: -30px;
+  left: -25px;
+  width: 4rem;
   z-index: 1;
   transition: all 0.2s ease;
   flex-grow: 1;
@@ -209,11 +212,13 @@ body{
 
 }
 
+/*Input field for username the user wants to friend*/
 .input-username {
   padding: 8px;
   border: 2px solid transparent;
   border-radius: 8px;
   border-radius: 10em;
+  width: 70%;
   font-family: "Lato";
   flex-grow: 1;
   box-sizing: border-box;
@@ -230,6 +235,7 @@ body{
     0px 0px 10px rgba(192, 179, 0, 0.4); 
 }
 
+/*Button to show or hide friend list*/
 .showFriendsBtn{
   padding: 10px 20px;
   border: 1px solid rgb(17, 87, 0);
@@ -251,7 +257,6 @@ body{
     0px 0px 15px rgba(192, 179, 0, 0.233); 
 }
 
-
 .friends-panel {
   transform: translateX(-120%);
   transition: all 0.3s ease-out;
@@ -269,57 +274,42 @@ body{
   font-family: "Retro";
   font-size: 18px;
   letter-spacing: 2px;
-  
 }
 
 .friends-panel.visible ~ .main-chat {
   width: 70%;
 }
 
-
+/*Different styling on smaller devices*/
 @media (max-width: 600px) {
   .friends-div h2{
     font-size: 1rem;
   }
-
   .friends-panel{
-    overflow: hidden;
-    
+    overflow: hidden; 
   }
-
   .friends-panel.visible {
     min-width: 8rem;
-    
   }
-  
   .friends-panel.visible ~ .main-chat {
     width: 55%;
   }
-  
   .showFriendsBtn {
     padding: 8px 16px;
     font-size: 10px;
   }
-
   .input-username{
     padding: 10px;
     width: 6.6rem;
     margin-left: -10px;
     font-size: 10px;
   }
-
   .request-button{
     font-size: 10px;
     width: 2rem;
     padding: 11px 10px;
     left: -20px;
   }
-}
-
-.main-chat {
-  width: 100%;
-  padding: 10px;
-  transition: width 0.3s ease-out;
 }
 
 .friends-div p{
@@ -329,6 +319,7 @@ body{
   top: -10px;
 }
 
+/*List of friends*/
 .friend-names{
   font-family: 'Lato';
   font-size: 15px;
@@ -341,6 +332,7 @@ ol li::marker {
   color: black;
 }
 
+/*Accept or Decline button*/
 .friend-response{
   width: 22px;
   height: 22px;
@@ -352,7 +344,6 @@ ol li::marker {
 }
 
 .img-response{
-  
   height: 20px;
   width: auto;
   position: relative;
@@ -360,8 +351,7 @@ ol li::marker {
   top: -2px;
 }
 
-
-
+/*Remove friend button*/
 .remove-button{
   border-radius: 100rem;
   border: 1px solid rgb(105, 0, 0);
@@ -381,6 +371,7 @@ ol li::marker {
   box-shadow: 0px 0px 15px rgba(192, 0, 0, 0.233); 
 }
 
+/*Title of the MainApp component*/
 .introduction{
   text-align: left;
   justify-content: center;
@@ -395,17 +386,26 @@ ol li::marker {
 @media (max-width: 600px){
   .friend-response{
     left: 5em;
-  }
-  
+  }  
   .introduction{
     font-size: 2.5rem;
   }
   .remove-button{
-    left: 7em;
-    font-size: 8px;
+    left: 3em;
+    font-size: 6px;
+    width: 30px;
+    padding: 3px 1px;
+    border-radius: 5px;
   }
 }
 
+.main-chat {
+  width: 100%;
+  padding: 10px;
+  transition: width 0.3s ease-out;
+}
+
+/*Holds conversation messages*/
 .chat-box{
   padding: 15px;
   height: 300px;
@@ -422,14 +422,12 @@ ol li::marker {
   flex-direction: column;
 }
 
-
 .message-container {
   display: flex;
   width: 100%;
   margin-top: 10px;
   position: relative;
-  margin-bottom: 30px;
-  
+  margin-bottom: 30px; 
 }
 
 .message-content{
@@ -454,7 +452,7 @@ ol li::marker {
   gap: 2px;
 }
 
-
+/*Input field to enter message the user wants to send*/
 .message-input{
   font-size:15px;
   font-family: "Lato";
@@ -478,6 +476,7 @@ ol li::marker {
     8px 15px 40px rgba(255, 112, 155, 0.5); 
 }
 
+/*Friend the user is chatting with*/
 .chat-with{
   text-align: right;
   font-family: 'Lato';
@@ -485,6 +484,7 @@ ol li::marker {
   font-size: 20px;
 }
 
+/*Send message button*/
 .sendBtn{
   font-size:15px;
   font-family: "Lato";
@@ -501,7 +501,6 @@ ol li::marker {
   flex-grow: 1;
 }
 
-
 .sendBtn:hover{
   cursor: pointer;
   box-shadow: 5px 10px 30px rgba(255, 112, 155, 0.664);
@@ -512,13 +511,13 @@ ol li::marker {
   .sendBtn{
     width: 1.5rem;
     font-size: 10px;
-    padding: 10px 2px;
-    
+    padding: 10px 2px; 
   }
-
+  .message-chat{
+    font-size: 12px;
+  }
   .message-input{
     font-size: 10px;
-    
   }
 
   .friends-div p{
@@ -534,23 +533,21 @@ ol li::marker {
   }
   
   .message-time{
-    font-size: 0.6em;
+    font-size: 0.5em;
   }
 }
 
+/*Confirm whether the user wants to remove a friend*/
 .confirmation-box {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-   
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 6000;
-
-
 }
 
 .white-box {
