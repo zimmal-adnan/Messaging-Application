@@ -10,7 +10,7 @@ function App(){
     <>
     {!isLoggedin ? (<Login 
     setIsLoggedIn={setIsLoggedIn} setUsername={setUsername}></Login>
-     ) : ( //if the user is logged in, load the MainApp component
+     ) : ( 
       <MainApp username={username}></MainApp>
     )}
     </>
