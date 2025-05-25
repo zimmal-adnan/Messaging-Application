@@ -7,35 +7,35 @@ body{
 /*---Fonts used---*/
 @font-face {
   font-family: 'Boldwinn';
-  src: url('/public/Boldwinn.ttf') format('truetype');
+  src: url('/Boldwinn.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Retro';
-  src: url('/public/Retro Floral.ttf') format('truetype');
+  src: url('/Retro Floral.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Raleway';
-  src: url('/public/Raleway-Thin.ttf') format('truetype');
+  src: url('/Raleway-Thin.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'RalewayR';
-  src: url('/public/Raleway-Regular.ttf') format('truetype');
+  src: url('/Raleway-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Lato';
-  src: url('/public/Lato-Light.ttf') format('truetype');
+  src: url('/Lato-Light.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -51,7 +51,7 @@ body{
   width: 20rem;
   border-radius: 2rem;
   font-family: 'Retro', sans-serif;
-  background-image: url('/public/loginPic.jpg');
+  background-image: url('/loginPic.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

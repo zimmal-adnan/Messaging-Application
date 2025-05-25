@@ -7,10 +7,11 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
     const [isHovering, setIsHovering] = useState(null);
     const [confirmRemove, setConfirmRemove] = useState(null);
     
-
+    //runs when the WebSocket becomes available
     useEffect(() => {
         if (!ws) return;
 
+        //handles every incoming message from the server
         const handleMessage = (e) => {
             const data = JSON.parse(e.data);
             console.log("FriendRequest received:", data);
@@ -37,23 +38,27 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
             }
 
         };
-
+        
+        //sends messages to the server
+        //everytime a message is received, run handleMessage
         ws.addEventListener("message", handleMessage);
 
-        // Request initial data
+        //sends requests to the backend
         ws.send(JSON.stringify({ type: "get_friends" }));
         ws.send(JSON.stringify({ type: "get_pending_requests" }));
         
+        //removes the listener when the component unmounts
         return () => {
             ws.removeEventListener('message', handleMessage);
         };
     }, [ws]);
 
 
-
+    //remove a friend from the list
     function removeFriend(targetUser){
         if (!targetUser || !ws) return;
-
+        
+        //only keep users which don't match the target user
         setFriends(prev => prev.filter(u => u !== targetUser));
 
         ws.send(JSON.stringify({
@@ -63,20 +68,25 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
 
     }
 
+    //sets the name of the friend to remove
     function confirmRemoveFriend(user) {
     setConfirmRemove(user); 
     }
 
+    //send a friend request to the user
     function SendRequest() {
+        //if request field empty
         if (!requestInput.trim()) return;
 
         ws.send(JSON.stringify({
             type: "friend_request",
             recipient: requestInput
         }));
+        //celar the input field after sending
         setRequestInput("");
     }
 
+    //function to accept a friend request
     function AcceptFriend(user) {
         if (!user || !ws) return;
 
@@ -86,11 +96,12 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
             response: 'accept'
         }));
 
-        // Optimistic update
+        //optimistic update
         setPendingRequests(pendingRequests.filter(u => u !== user));
         setFriends([...friends, user]);
     }
 
+    //to decline a friend request
     function DeclineFriend(user) {
         if (!user || !ws) return;
 
@@ -100,10 +111,13 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
             response: 'declined'
         }));
 
+        //remove the user from the pending list
         setPendingRequests(pendingRequests.filter(u => u !== user));
     }
 
+    //runs when the friend's name is clicked in the UI
     function handleFriendClick(user) {
+        //checks if the user is in the current friend list
         if (friends.includes(user)) {
             setTargetUser(user);
         }
@@ -111,6 +125,8 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
 
     return (
         <div className="friends-div">
+
+            {/*Friend Request Input*/}
             <div className="request-container">
                 <input
                     className="input-username"
@@ -122,12 +138,14 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                 <button className="request-button" onClick={SendRequest}>►</button>
             </div>
 
+            {/*Pending Requests List*/}
             <div>
                 <h2>Pending Friend Requests: </h2>
                 {pendingRequests.length === 0 ? (
                     <p>No pending requests</p>
                 ) : (
                     <ol>
+                        {/*JSX for each pending user*/}
                         {pendingRequests.map(user => (
                             <li className = "friend-names" key={user}>
                                 {user}
@@ -139,23 +157,27 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                 )}
             </div>
             
+            {/*Friend List*/}
             <div>
                 <h2>Your Friends: </h2>
                 {friends.length === 0 ? (
                     <p>No friends yet</p>
                 ) : (
                     <ol>
+                        {/*JSX for each friend*/}
                         {friends.map(user => (
                             <li className="friend-names"
-                                key={user} 
+                                key={user} //to identify each element in a list to track changes and re-render only the elements that changed
                                 onClick={() => handleFriendClick(user)}
-                                onMouseEnter={() => setIsHovering(user)} 
-                                onMouseLeave={() => setIsHovering(null)}
+                                onMouseEnter={() => setIsHovering(user)} //if the mouse is hovered over a friend's name, it stores the username of the currently hovered friend
+                                onMouseLeave={() => setIsHovering(null)} //clears the hovered state
                                 style={{ 
                                     cursor: "pointer", 
                                     fontWeight: targetUser === user ? "bold" : "normal",
                                     color: targetUser === user ? "grey" : "black",
                                 }}><span>{user}</span>
+
+                                {/*if the list item is the one being hovered, show the button*/}
                                 {isHovering === user && (
                                     <button className="remove-button" style={{ marginLeft: "10px" }} onClick={() => confirmRemoveFriend(user)}>REMOVE FRIEND</button>
                                 )}
@@ -164,7 +186,8 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                     </ol>
                 )}
             </div>
-
+            
+            {/*Confirmation to remove friend*/}
             {confirmRemove && (
                 <div className="confirmation-box">
                     <div className="white-box">
