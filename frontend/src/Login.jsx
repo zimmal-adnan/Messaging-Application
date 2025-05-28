@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 function Login(props){
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordAgain, setPasswordAgain] = useState("");
     const [isSignUp, setIsSignUp] = useState(false);
 
 
@@ -18,7 +19,12 @@ function Login(props){
         body: JSON.stringify({username: username, password: password}),
     });
 
-   
+    if(isSignUp){
+      if(passwordAgain != password){
+      throw Error("Passwords don't match")
+      }
+    }
+
 
     //if there is an error, throw the error message
     if(!response.ok){
@@ -40,7 +46,62 @@ function Login(props){
 }
 
   return(
-    <div className = "login">
+    <>
+
+    {isSignUp ? (
+
+      <div className = "login" style = {{height: "28rem"}}>
+
+        {/*App Title*/}
+        <h2 style ={{ fontSize: "30px"}}>B R E E Z E</h2>
+
+        {/*Username Input*/}
+        <div className="input-container">
+          <input 
+            value={username} //to be stored in the database in the server
+            onChange={(e) => setUsername(e.target.value)} //updates username as it is typed
+            placeholder=' ' 
+            required
+          />
+          <label>ENTER USERNAME</label>
+        </div>  
+
+        {/*Password Input*/}
+        <div className="input-container" style={{marginTop: '20px'}}>
+          <input 
+            type = "password"
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            placeholder=' ' 
+            required
+          />
+          <label>ENTER PASSWORD</label>
+        </div>
+
+        <div className="input-container" style={{marginTop: '20px'}}>
+          <input 
+            type = "password"
+            value={passwordAgain} 
+            onChange={(e) => setPasswordAgain(e.target.value)} 
+            placeholder=' ' 
+            required
+          />
+          <label>ENTER PASSWORD (AGAIN)</label>
+        </div>
+
+        {/*Submit Button*/}
+        <button className="username-button" onClick={handleSubmit}>{isSignUp ? "SIGN UP" : "LOGIN"}</button>
+        
+        {/*Switch between Login/Signup*/}
+        <p className='login-p' onClick={() => setIsSignUp(!isSignUp)} >
+          {isSignUp ? "Already have an account? Login" : "Need an account? Sign up"}
+        </p>
+
+        
+    </div>
+
+    ) : (
+      <div className = "login">
 
         {/*App Title*/}
         <h2 style ={{ fontSize: "30px"}}>B R E E Z E</h2>
@@ -75,7 +136,13 @@ function Login(props){
         <p className='login-p' onClick={() => setIsSignUp(!isSignUp)} >
           {isSignUp ? "Already have an account? Login" : "Need an account? Sign up"}
         </p>
+
+        
     </div>
+    )}
+    
+    </>
+    
   );
 }
 export default Login
