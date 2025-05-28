@@ -20,7 +20,7 @@ The project has the following features:
 ## How the Project Looks!
 (Coming Soon!)
 
-# Check it Out!
+## Check it Out!
 The Chat Application has already been deployed on: messaging-application-five.vercel.app
 
 ## Installation & Setup
