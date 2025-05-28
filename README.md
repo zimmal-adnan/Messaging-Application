@@ -14,6 +14,9 @@ The project has the following features:
 ## Code Flow Diagram
 (Coming Soon!)
 
+## Project Structure
+(Coming Soon!)
+
 ## How the Project Looks!
 (Coming Soon!)
 
@@ -24,12 +27,12 @@ The Chat Application has already been deployed on: messaging-application-five.ve
 Feel free to tweak the project and rename it for your own purposes. Here's how to run the project locally:
 1. Clone the repository
 2. Go to Command Prompt, then do the following:
- * Go to your backend folder
- * Write "pip install fastapi uvicorn websockets sqlite3"
- * Go to your frontend folder
- * Write "npm install"
-4. Run the backend with "uvicorn backend:app --reload"
-5. Run the frontend with "npm run dev"
+  * Go to your backend folder (cd messaging-application/backend)
+  * Write "pip install fastapi uvicorn websockets sqlite3"
+  * Go to your frontend folder (cd messaging-application/frontend)
+  * Write "npm install"
+3. Run the backend with "uvicorn backend:app --reload" in the backend folder
+4. Run the frontend with "npm run dev" in the frontend folder
 
 NOTE: This project is still under progress and is expected to be developed further in the future!
 
