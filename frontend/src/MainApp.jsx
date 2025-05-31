@@ -27,7 +27,7 @@ function MainApp({username}){
     }
 
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
+        const ws = new WebSocket(`wss://messaging-application-c9s5.onrender.com/ws/${username}`);
     
         ws.onopen = () => {
           console.log("WebSocket connected"); 
@@ -75,7 +75,7 @@ function MainApp({username}){
             if (!targetUser) return;
             
             try {
-                const response = await fetch(`http://localhost:8000/get_messages?user1=${username}&user2=${targetUser}`);
+                const response = await fetch(`https://messaging-application-c9s5.onrender.com/get_messages?user1=${username}&user2=${targetUser}`);
                 if (response.ok) {
                     const data = await response.json();
                     setMessages(data);
