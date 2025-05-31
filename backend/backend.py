@@ -541,6 +541,10 @@ async def websocket_chat(websocket: WebSocket, username: str):
         #update everyone's user list
         await manager.broadcast_user_list()
 
+@app.get("/health")
+async def health_check():
+    return {"status": "OK"}
+
 #---Run server---
 if __name__ == "__main__":
     import uvicorn
