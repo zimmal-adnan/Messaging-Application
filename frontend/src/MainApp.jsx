@@ -88,6 +88,14 @@ function MainApp({username}){
         };
       }, [username]);
 
+        //keeps only messages that match a certain condition
+        const conversationMessages = messages.filter(msg => //msg is each message object
+        //message sent by friend to the user
+        (msg.sender === targetUser && msg.recipient === username) ||
+        //message sent by user to friend
+        (msg.sender === username && msg.recipient === targetUser)
+        );
+
       //load chat history
       useEffect(() => {
         const loadConversation = async () => {
@@ -107,15 +115,9 @@ function MainApp({username}){
         };
         
         loadConversation();
-    }, [targetUser, username]);
+    }, [targetUser, username, conversationMessages]);
 
-    //keeps only messages that match a certain condition
-    const conversationMessages = messages.filter(msg => //msg is each message object
-    //message sent by friend to the user
-    (msg.sender === targetUser && msg.recipient === username) ||
-    //message sent by user to friend
-    (msg.sender === username && msg.recipient === targetUser)
-    );
+    
 
     return(
         <div className='chat-body'>

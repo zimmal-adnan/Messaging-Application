@@ -6,6 +6,7 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
     const [requestInput, setRequestInput] = useState("");
     const [isHovering, setIsHovering] = useState(null);
     const [confirmRemove, setConfirmRemove] = useState(null);
+    const [touchTimer, setTouchTimer] = useState(null);
     
     //runs when the WebSocket becomes available
     useEffect(() => {
@@ -123,6 +124,17 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
         }
     }
 
+    const handleTouchStart = (user) => {
+        const timer = setTimeout(() => {
+            setIsHovering(user);
+        }, 500); 
+        setTouchTimer(timer);
+    };
+
+    const handleTouchEnd = () => {
+        clearTimeout(touchTimer);
+    };
+
     return (
         <div className="friends-div">
 
@@ -171,6 +183,8 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                                 onClick={() => handleFriendClick(user)}
                                 onMouseEnter={() => setIsHovering(user)} //if the mouse is hovered over a friend's name, it stores the username of the currently hovered friend
                                 onMouseLeave={() => setIsHovering(null)} //clears the hovered state
+                                onTouchStart={() => handleTouchStart(user)}
+                                onTouchEnd={handleTouchEnd}
                                 style={{ 
                                     cursor: "pointer", 
                                     fontWeight: targetUser === user ? "bold" : "normal",

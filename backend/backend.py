@@ -389,10 +389,6 @@ async def get_messages(user1: str, user2: str):
     messages = db.get_conversation(user1, user2)
     return messages
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
-
 @app.post("/signup")
 async def signup(data: SignupRequest):
     username = data.username

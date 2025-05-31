@@ -614,3 +614,9 @@ ol li::marker {
   box-shadow: 0px 0px 10px rgba(170, 0, 0, 0.4);
 }
 
+@media (max-width: 600px) {
+  .confirmation-button{
+    width: 80%;
+  }
+
+}
