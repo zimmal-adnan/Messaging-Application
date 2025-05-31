@@ -138,7 +138,7 @@ function MainApp({username}){
                                 <div className="message-chat">
                                     <strong>{msg.sender}: </strong> {msg.content}
                                 </div>
-                                <small className="message-time">({new Date(msg.timestamp).toISOString()})</small>
+                                <small className="message-time">({new Date(msg.timestamp).toLocaleTimeString()})</small>
                             
                             </div>
                         ))}
