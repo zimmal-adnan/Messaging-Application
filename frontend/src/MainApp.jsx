@@ -55,12 +55,15 @@ function MainApp({username}){
               setOnlineUsers(data.users);
             }
             else if(data.type === "message"){
-                setMessages(m => [...m, {
-                    sender: data.sender,
+                const incomingMessage = {
+                    sender: data.sender || username,
                     content: data.message,
                     timestamp: data.timestamp || new Date().toISOString(),
-                    recipient: username
-                }]);
+                    recipient: data.recipient || targetUser, 
+                };
+                console.log("Incoming message:", incomingMessage);
+                setMessages(m => [...m, incomingMessage]);
+                
             }
           } catch (e) {
             console.error("Error parsing WebSocket message:", e);
@@ -133,7 +136,7 @@ function MainApp({username}){
 
                     {/*Chat Box*/}
                     <div className="chat-box">
-                        {conversationMessages.map((msg, index) => ( //loops through every message, and creates a JSX block to display for each message
+                        {conversationMessages.map((msg, index) => (
                             <div className="message-content" key={index}>
                                 <div className="message-chat">
                                     <strong>{msg.sender}: </strong> {msg.content}

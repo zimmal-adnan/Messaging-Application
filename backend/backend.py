@@ -470,15 +470,19 @@ async def websocket_chat(websocket: WebSocket, username: str):
                     #send the message to the recipient
                     await recipient_ws.send_json({
                         "type": "message",
-                        "from": username,
-                        "message": message
+                        "sender": username,
+                        "recipient": recipient,
+                        "message": message,
+                        "timestamp": datetime.now().isoformat()
                     })
 
                     #confirmation to the sender that the message was sent
                     await websocket.send_json({
                         "type": "message",
-                        "to": recipient,
-                        "message": message
+                        "sender": username,
+                        "recipient": recipient,
+                        "message": message,
+                        "timestamp": datetime.now().isoformat()
                     })
 
             #to display friend list
