@@ -360,7 +360,7 @@ manager = ConnectionManager()
 
 #---API Endpoints---
 #to process login
-@app.api_route("/login", methods=["GET", "HEAD", "POST"])
+@app.post("/login")
 async def login(data: LoginRequest):
     username = data.username
     password = data.password
@@ -388,6 +388,10 @@ async def login(data: LoginRequest):
 async def get_messages(user1: str, user2: str):
     messages = db.get_conversation(user1, user2)
     return messages
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
 
 @app.post("/signup")
 async def signup(data: SignupRequest):
