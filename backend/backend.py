@@ -541,14 +541,6 @@ async def websocket_chat(websocket: WebSocket, username: str):
         #update everyone's user list
         await manager.broadcast_user_list()
 
-@app.get("/")
-def read_root():
-    return {"status": "ok"}
-
-@app.head("/")
-def head_root():
-    return ""
-    
 #---Run server---
 if __name__ == "__main__":
     import uvicorn
