@@ -454,6 +454,33 @@ async def websocket_chat(websocket: WebSocket, username: str):
                             "removed_user": username
                         })
 
+            #when a user wants to send a message
+            elif data["type"] == "message":
+                #get receiver's username and message content from the frontend
+                recipient = data["recipient"]
+                message = data["message"]
+                
+                #save the message in the database
+                db.save_message(username, recipient, message)
+
+                #if the recipient is online
+                if recipient in manager.user_connections:
+                    recipient_ws = manager.active_connections[manager.user_connections[recipient]]
+                    
+                    #send the message to the recipient
+                    await recipient_ws.send_json({
+                        "type": "message",
+                        "from": username,
+                        "message": message
+                    })
+
+                    #confirmation to the sender that the message was sent
+                    await websocket.send_json({
+                        "type": "message",
+                        "to": recipient,
+                        "message": message
+                    })
+
             #to display friend list
             elif data["type"] == "get_friends":
                 friends = db.get_friends_list(username)
@@ -489,24 +516,7 @@ async def websocket_chat(websocket: WebSocket, username: str):
                         "response": response
                     })
             
-            #handling normal messages
-            elif data["type"] == "message":
-                recipient = data["recipient"]
-                message = data["message"]
-
-                db.save_message(username, recipient, message)
-                
-                #if the recipient is online
-                if recipient in manager.user_connections:
-                    #find connection_id of the user, use that connection_id to find the WebSocket connection to get a live connection
-                    recipient_ws = manager.active_connections[manager.user_connections[recipient]]
-                    #send a message in real-time
-                    await recipient_ws.send_json({
-                        "type": "message",
-                        "sender": username,
-                        "message": message,
-                        "timestamp": datetime.now().isoformat()
-                    })
+            
     
     #if the user closes the tab or loses internet
     except WebSocketDisconnect:
