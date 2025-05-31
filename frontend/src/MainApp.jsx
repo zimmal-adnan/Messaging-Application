@@ -48,22 +48,18 @@ function MainApp({username}){
           try {
             //the event object contains data sent by the server
             const data = JSON.parse(event.data);
-            console.log("Parsed data:", data);
 
             //show the list of online users
             if (data.type === "user_list") {
               setOnlineUsers(data.users);
             }
             else if(data.type === "message"){
-                const incomingMessage = {
-                    sender: data.sender || username,
+                setMessages(m => [...m, {
+                    sender: data.sender,
                     content: data.message,
-                    timestamp: data.timestamp || new Date().toISOString(),
-                    recipient: data.recipient || targetUser, 
-                };
-                console.log("Incoming message:", incomingMessage);
-                setMessages(m => [...m, incomingMessage]);
-                
+                    timestamp: data.timestamp,
+                    recipient: data.recipient,
+                }]);
             }
           } catch (e) {
             console.error("Error parsing WebSocket message:", e);
