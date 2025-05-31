@@ -26,7 +26,6 @@ function MainApp({username}){
             setMessages(m => [...m, {
                 sender: username,
                 content: newMessage,
-                timestamp: new Date().toLocaleString(),
                 timestamp: new Date().toISOString(),
                 recipient: targetUser
             }])
@@ -59,7 +58,7 @@ function MainApp({username}){
                 setMessages(m => [...m, {
                     sender: data.sender,
                     content: data.message,
-                    timestamp: new Date().toISOString(),
+                    timestamp: data.timestamp || new Date().toISOString(),
                     recipient: username
                 }]);
             }
