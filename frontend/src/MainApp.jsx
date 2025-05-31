@@ -26,7 +26,7 @@ function MainApp({username}){
             setMessages(m => [...m, {
                 sender: username,
                 content: newMessage,
-                timestamp: new Date().toLocaleString(),
+                timestamp: new Date().toISOString(),
                 recipient: targetUser
             }])
             //clears the input
@@ -138,7 +138,7 @@ function MainApp({username}){
                                 <div className="message-chat">
                                     <strong>{msg.sender}: </strong> {msg.content}
                                 </div>
-                                <small className="message-time">({new Date(msg.timestamp).toLocaleTimeString()})</small>
+                                <small className="message-time">({new Date(msg.timestamp).toISOString()})</small>
                             
                             </div>
                         ))}

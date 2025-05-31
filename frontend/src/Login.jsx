@@ -6,7 +6,6 @@ function Login(props){
     const [passwordAgain, setPasswordAgain] = useState("");
     const [isSignUp, setIsSignUp] = useState(false);
 
-
   //runs when the user clicks the Login/Singup button
   async function handleSubmit(){
     try{
