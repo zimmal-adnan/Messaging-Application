@@ -360,7 +360,7 @@ manager = ConnectionManager()
 
 #---API Endpoints---
 #to process login
-@app.post("/login")
+@app.api_route("/login", methods=["GET", "HEAD", "POST"])
 async def login(data: LoginRequest):
     username = data.username
     password = data.password
@@ -541,9 +541,6 @@ async def websocket_chat(websocket: WebSocket, username: str):
         #update everyone's user list
         await manager.broadcast_user_list()
 
-@app.get("/health")
-async def health_check():
-    return {"status": "OK"}
 
 #---Run server---
 if __name__ == "__main__":
