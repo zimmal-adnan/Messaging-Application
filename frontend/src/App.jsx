@@ -35,7 +35,7 @@ function App(){
         }/>
         <Route 
           path="/chat" 
-          element={isLoggedIn ? <MainApp username={username} setIsLoggedIn={setIsLoggedIn}></MainApp> : <Navigate to="/login"></Navigate>
+          element={isLoggedIn ? <MainApp username={username} setIsLoggedIn={setIsLoggedIn} setUsername={setUsername}></MainApp> : <Navigate to="/login"></Navigate>
         }/>
         <Route 
           path="*" 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import FriendRequest from './FriendRequest';
+import {useNavigate} from 'react-router-dom';
 
-function MainApp({username}){
+function MainApp({username, setIsLoggedIn, setUsername}){
+    const navigate = useNavigate();
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
@@ -117,11 +119,17 @@ function MainApp({username}){
         loadConversation();
     }, [targetUser, username, conversationMessages]);
 
-    
+    function LogOut(){
+        setIsLoggedIn(false);
+        navigate("/login", {replace: true});
+        setUsername("");
+    }
 
     return(
         <div className='chat-body'>
             
+           <button onClick={LogOut}>Logout</button>
+
             {/*Title*/}
             <h1 className='introduction'>WELCOME  {username}!</h1>
 
