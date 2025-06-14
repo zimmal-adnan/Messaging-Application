@@ -28,7 +28,7 @@ Feel free to tweak the project and rename it for your own purposes. Here's how t
 1. Clone the repository
 2. Go to Command Prompt, then do the following:
    * Go to your backend folder (cd messaging-application/backend)
-   * Write "pip install fastapi uvicorn websockets sqlite3"
+   * Write "pip install fastapi uvicorn websockets"
    * Go to your frontend folder (cd messaging-application/frontend)
    * Write "npm install"
 3. Run the backend with "uvicorn backend:app --reload" in the backend folder
