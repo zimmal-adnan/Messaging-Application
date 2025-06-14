@@ -193,19 +193,27 @@ class Database:
         recipient_id = recipient[0]
 
         #check if a friendship already exists
-        cursor.execute("""SELECT 1 FROM friends --check if anything exists 
+        cursor.execute("""SELECT status FROM friends --check if anything exists 
                           WHERE (user_id=? AND friend_id=?) --check if sender already sent to recipient
                              OR (user_id=? AND friend_id=?) --check if recipient already sent to sender""", 
                        (sender_id, recipient_id, recipient_id, sender_id))
         #if a row exists like that (connection already there), then don't send a new request
-        if cursor.fetchone():
-            return False  
+        
+        existing = cursor.fetchone()
+        if existing:
+            status = existing[0]
+            if status == 'pending' or status == "accepted":
+                return False
+            elif status == "declined":
+                cursor.execute("""DELETE FROM friends
+                                  WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)""",
+                                (sender_id, recipient_id, recipient_id, sender_id))
 
         #if everything is clear, insert a new row into the friends table
         cursor.execute("""INSERT INTO friends 
                           (user_id, friend_id, status, action_user_id) 
-                          VALUES (?,?,?,?)""",
-                       (sender_id, recipient_id, 'pending', sender_id))
+                          VALUES (?,?,'pending', ?)""",
+                       (sender_id, recipient_id, sender_id))
         self.connection.commit()
         return True #request was successfully sent
     
@@ -439,51 +447,64 @@ async def websocket_chat(websocket: WebSocket, username: str):
                             "type": "friend_request_received",
                             "from": username
                         })
-
+            #if the user wants to remove a friend
             elif data["type"] == "remove_friend":
+                #retrieve the username of the user the client wants to remove
                 target_user = data["target"]
 
                 if db.remove_friend(username, target_user):
+                    #tell the client the removal was successful
                     await websocket.send_json({
                         "type": "friend_removed",
                         "target": target_user
                     })
 
+                    #if the unfriended user is online
                     if target_user in manager.user_connections:
+                        #get WebSocket connection of that user
                         target_ws = manager.active_connections[manager.user_connections[target_user]]
+                        #notify that friend that they have been removed
                         await target_ws.send_json({
                             "type": "friend_removed",
                             "removed_user": username
                         })
 
-
+            #when a user wants to send a message
             elif data["type"] == "message":
+                #get receiver's username and message content from the frontend
                 recipient = data["recipient"]
                 message = data["message"]
                 
+                #save the message in the database
                 db.save_message(username, recipient, message)
 
+                #if the recipient is online
                 if recipient in manager.user_connections:
                     recipient_ws = manager.active_connections[manager.user_connections[recipient]]
+                    #send the message to the recipient
                     await recipient_ws.send_json({
                         "type": "message",
                         "from": username,
                         "message": message
                     })
 
+                    #confirmation to the sender that the message was sent
                     await websocket.send_json({
                         "type": "message",
                         "to": recipient,
                         "message": message
                     })
 
+            #to display friend list
             elif data["type"] == "get_friends":
                 friends = db.get_friends_list(username)
+                #send the friend list
                 await websocket.send_json({
                     "type": "friends_list",
                     "friends": friends
                 })
 
+            #display pending friend requests
             elif data["type"] == "get_pending_requests":
                 pending = db.get_pending_requests(username)
                 await websocket.send_json({

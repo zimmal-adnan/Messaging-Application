@@ -83,7 +83,7 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
             type: "friend_request",
             recipient: requestInput
         }));
-        //celar the input field after sending
+        //clear the input field after sending
         setRequestInput("");
     }
 
@@ -146,6 +146,7 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                     type="text"
                     onChange={(e) => setRequestInput(e.target.value)}
                     placeholder="Enter username..."
+                    onKeyDown={(e) => e.key === "Enter" && SendRequest()}
                 />
                 <button className="request-button" onClick={SendRequest}>►</button>
             </div>
@@ -161,8 +162,8 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                         {pendingRequests.map(user => (
                             <li className = "friend-names" key={user}>
                                 {user}
-                                <button className="friend-response" onClick={() => AcceptFriend(user)}><img src="/tick.jpg" className="img-response" alt="Accept"/></button>
-                                <button className="friend-response" onClick={() => DeclineFriend(user)}><img src="x.jpg" className="img-response" alt="Accept"/></button>
+                                <button className="friend-response" onClick={() => AcceptFriend(user)}><img src="/tick.jpg" id="accept-button" className="img-response" alt="Accept"/></button>
+                                <button className="friend-response" onClick={() => DeclineFriend(user)}><img src="x.jpg" id="decline-button" className="img-response" alt="Decline"/></button>
                             </li>
                         ))}
                     </ol>
