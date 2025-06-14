@@ -126,10 +126,10 @@ function MainApp({username}){
             <h1 className='introduction'>WELCOME  {username}!</h1>
 
             {/*Toggle Button*/}                      
-            <button className = "showFriendsBtn" onClick={() => setShowFriendsPanel(!showFriendsPanel)}>{showFriendsPanel ? "HIDE FRIENDS" : "SHOW FRIENDS"}</button>
+            <button className = "showFriendsBtn" style ={{transition: "all 0.3s"}}onClick={() => setShowFriendsPanel(!showFriendsPanel)}>{showFriendsPanel ? "HIDE FRIENDS" : "SHOW FRIENDS"}</button>
             
-            <div style={{ display: "flex" }}>
-
+            <div className="chat-container" style={{ display: "flex" }}>
+                
                 {/*Friends Section*/}
                 <div className = {`friends-panel ${showFriendsPanel ? 'visible' : ''}`} style={{ padding: "10px" }}>
                     <FriendRequest username={username} ws={socketRef.current} setTargetUser={setTargetUser} targetUser={targetUser}/>             
@@ -140,7 +140,7 @@ function MainApp({username}){
                     <h2 className='chat-with'>CHAT WITH {targetUser || "..."}</h2>
 
                     {/*Chat Box*/}
-                    <div className="chat-box">
+                    <div className="chat-box" style={{transition: "all 0.5s"}}>
                         
                         {conversationMessages.map((msg, index) => ( //loops through every message, and creates a JSX block to display for each message
                             <div className="message-content" key={index}>
