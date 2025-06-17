@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import FriendRequest from './FriendRequest';
+import DropDownMenu from './DropDown';
 import {useNavigate} from 'react-router-dom';
 
 function MainApp({username, setIsLoggedIn, setUsername}){
@@ -9,6 +10,7 @@ function MainApp({username, setIsLoggedIn, setUsername}){
     const [newMessage, setNewMessage] = useState("");
     const [targetUser, setTargetUser] = useState("");
     const [showFriendsPanel, setShowFriendsPanel] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
 
     //keeps the WebSocket alive without re-creating it on every render
     const socketRef = useRef(null); 
@@ -38,8 +40,9 @@ function MainApp({username, setIsLoggedIn, setUsername}){
     }
 
     //opens a WebSocket connection when the component is first loaded or when the username changes
+    //`wss://messaging-application-c9s5.onrender.com/ws/${username}`
     useEffect(() => {
-        const ws = new WebSocket(`wss://messaging-application-c9s5.onrender.com/ws/${username}`);
+        const ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
     
         ws.onopen = () => {
           console.log("WebSocket connected"); 
@@ -65,6 +68,9 @@ function MainApp({username, setIsLoggedIn, setUsername}){
                     timestamp: new Date().toISOString(),
                     recipient: username
                 }]);
+            }
+            else if(data.type === "friend_removed") {
+                setTargetUser("")
             }
           } catch (e) {
             console.error("Error parsing WebSocket message:", e);
@@ -101,16 +107,21 @@ function MainApp({username, setIsLoggedIn, setUsername}){
       //load chat history
       useEffect(() => {
         const loadConversation = async () => {
-            if (!targetUser) return;
-            
+
             try {
+                if (targetUser == ""){
+                    return;
+                }
                 //asks the backend to get all messages between two users
-                const response = await fetch(`https://messaging-application-c9s5.onrender.com/get_messages?user1=${username}&user2=${targetUser}`);
+                //`https://messaging-application-c9s5.onrender.com/get_messages?user1=${username}&user2=${targetUser}`
+                const response = await fetch(`http://localhost:8000/get_messages?user1=${username}&user2=${targetUser}`);
                 
                 if (response.ok) {
                     const data = await response.json();
                     setMessages(data);
                 }
+
+                
             } catch (error) {
                 console.error("Error loading messages:", error);
             }
@@ -119,22 +130,18 @@ function MainApp({username, setIsLoggedIn, setUsername}){
         loadConversation();
     }, [targetUser, username, conversationMessages]);
 
-    function LogOut(){
-        setIsLoggedIn(false);
-        navigate("/login", {replace: true});
-        setUsername("");
-    }
 
     return(
         <div className='chat-body'>
             
-           <button onClick={LogOut}>Logout</button>
+            <DropDownMenu showProfile={showProfile} setShowProfile={setShowProfile} setUsername={setUsername} setIsLoggedIn={setIsLoggedIn}></DropDownMenu>
 
             {/*Title*/}
             <h1 className='introduction'>WELCOME  {username}!</h1>
+            
 
             {/*Toggle Button*/}                      
-            <button className = "showFriendsBtn" style ={{transition: "all 0.3s"}}onClick={() => setShowFriendsPanel(!showFriendsPanel)}>{showFriendsPanel ? "HIDE FRIENDS" : "SHOW FRIENDS"}</button>
+            <button className = "showFriendsBtn" style ={{transition: "all 0.3s"}} onClick={() => setShowFriendsPanel(!showFriendsPanel)}>{showFriendsPanel ? "HIDE FRIENDS" : "SHOW FRIENDS"}</button>
             
             <div className="chat-container" style={{ display: "flex" }}>
                 
@@ -145,7 +152,9 @@ function MainApp({username, setIsLoggedIn, setUsername}){
                 
                 {/*Chat Section*/}
                 <div className = "main-chat">
-                    <h2 className='chat-with'>CHAT WITH {targetUser || "..."}</h2>
+                    {targetUser && (<h2 className='chat-with'>CHAT WITH {targetUser}</h2>)}
+                    {!targetUser && (<h2 className='chat-with'>CHAT WITH ...</h2>)}
+
 
                     {/*Chat Box*/}
                     <div className="chat-box" style={{transition: "all 0.5s"}}>
@@ -181,4 +190,4 @@ function MainApp({username, setIsLoggedIn, setUsername}){
     );
    
 }
-export default MainApp
+export default MainApp;

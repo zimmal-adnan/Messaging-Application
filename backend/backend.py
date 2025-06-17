@@ -83,8 +83,7 @@ class Database:
                 status TEXT NOT NULL CHECK(status IN ('pending', 'accepted', 'declined')),
                 action_user_id INTEGER NOT NULL, --id of the user who took the last action
                 FOREIGN KEY(user_id) REFERENCES users(user_id),
-                FOREIGN KEY(friend_id) REFERENCES users(user_id),
-                UNIQUE(user_id, friend_id) --no duplicate friendships (multiple requests cannot be sent, so it is a must for this combination to be unique.
+                FOREIGN KEY(friend_id) REFERENCES users(user_id)
             )
         """)
 
@@ -175,6 +174,9 @@ class Database:
     def send_friend_request(self, sender_username: str, recipient_username: str):
         cursor = self.connection.cursor()
 
+        if sender_username == recipient_username:
+            return False
+    
         #sender's username user_id
         cursor.execute("SELECT user_id FROM users WHERE username=?", (sender_username,))
         #get the first row found
@@ -194,26 +196,27 @@ class Database:
 
         #check if a friendship already exists
         cursor.execute("""SELECT status FROM friends --check if anything exists 
-                          WHERE (user_id=? AND friend_id=?) --check if sender already sent to recipient
-                             OR (user_id=? AND friend_id=?) --check if recipient already sent to sender""", 
+                        WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?) --check if sender already sent to recipient""",
                        (sender_id, recipient_id, recipient_id, sender_id))
         #if a row exists like that (connection already there), then don't send a new request
         
         existing = cursor.fetchone()
+
         if existing:
             status = existing[0]
-            if status == 'pending' or status == "accepted":
+            if status == 'accepted':
                 return False
-            elif status == "declined":
-                cursor.execute("""DELETE FROM friends
-                                  WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)""",
-                                (sender_id, recipient_id, recipient_id, sender_id))
-
-        #if everything is clear, insert a new row into the friends table
-        cursor.execute("""INSERT INTO friends 
-                          (user_id, friend_id, status, action_user_id) 
-                          VALUES (?,?,'pending', ?)""",
-                       (sender_id, recipient_id, sender_id))
+            if status == "pending" or status == 'declined':
+                if status == 'declined':
+                    cursor.execute("""
+                        DELETE FROM friends
+                        WHERE user_id = ? AND friend_id = ? AND status = 'declined'
+                    """, (sender_id, recipient_id))
+           
+        cursor.execute("""INSERT INTO friends (user_id, friend_id, status, action_user_id)
+                        VALUES (?, ?, 'pending', ?)
+                        """, (sender_id, recipient_id, sender_id))
+            
         self.connection.commit()
         return True #request was successfully sent
     
@@ -239,8 +242,13 @@ class Database:
         cursor = self.connection.cursor()
         #find user_id
         cursor.execute("SELECT user_id FROM users WHERE username=?", (username,))
-        user_id = cursor.fetchone()[0]
+        result = cursor.fetchone()
+
+        if not result:
+            return []
         
+        user_id = result[0]
+
         #find all usernames where friendship is accepted
         cursor.execute("""
             SELECT users.username 
@@ -437,6 +445,7 @@ async def websocket_chat(websocket: WebSocket, username: str):
             if data["type"] == "friend_request":
                 #the recipient of the request
                 recipient = data["recipient"]
+                print(f"Friend request attempt from {username} to {recipient}")
                 #create a pending friend request
                 if db.send_friend_request(username, recipient):
                     #if the recipient is online

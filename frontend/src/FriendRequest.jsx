@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import ConfirmationBox from "./confirmationbox";
 
-function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
+function FriendRequest({ ws, setTargetUser, targetUser, }) {
     const [friends, setFriends] = useState([]);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [requestInput, setRequestInput] = useState("");
     const [isHovering, setIsHovering] = useState(null);
     const [confirmRemove, setConfirmRemove] = useState(null);
+    const [remove, setRemove] = useState(true);
     const [touchTimer, setTouchTimer] = useState(null);
     
     //runs when the WebSocket becomes available
@@ -54,24 +56,10 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
         };
     }, [ws]);
 
-
-    //remove a friend from the list
-    function removeFriend(targetUser){
-        if (!targetUser || !ws) return;
-        
-        //only keep users which don't match the target user
-        setFriends(prev => prev.filter(u => u !== targetUser));
-
-        ws.send(JSON.stringify({
-            type: "remove_friend",
-            target: targetUser
-        }));
-
-    }
-
     //sets the name of the friend to remove
     function confirmRemoveFriend(user) {
-    setConfirmRemove(user); 
+        setConfirmRemove(user); 
+        setRemove(true);
     }
 
     //send a friend request to the user
@@ -202,16 +190,9 @@ function FriendRequest({ username, ws, setTargetUser, targetUser, }) {
                 )}
             </div>
             
-            {/*Confirmation to remove friend*/}
-            {confirmRemove && (
-                <div className="confirmation-box">
-                    <div className="white-box">
-                        <p>Are you sure you want to remove <strong>{confirmRemove}</strong> as a friend?</p>
-                        <button className = "confirmation-button"  id = "yes-button" onClick={() => { removeFriend(confirmRemove); setConfirmRemove(null); }}>YES</button>
-                        <button className = "confirmation-button"  id = "cancel-button" onClick={() => setConfirmRemove(null)}>CANCEL</button>
-                    </div>
-                </div>
-            )}
+            {confirmRemove ? (
+                <ConfirmationBox confirmRemove ={confirmRemove} setConfirmRemove={setConfirmRemove} setFriends={setFriends} ws={ws}></ConfirmationBox>
+            ):("")}
 
         </div>
     );

@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './Login.jsx'
 import MainApp from './MainApp.jsx';
 import NotFound from './NotFound.jsx';
+import ConfirmationBox from './confirmationbox.jsx';
 
 function App(){
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   
-  useEffect(() => {
+  
+  /*useEffect(() => {
     const storedLogin = window.localStorage.getItem('isLoggedIn');
     const storedUsername = window.localStorage.getItem('username');
 
@@ -17,7 +19,8 @@ function App(){
       setUsername(storedUsername);
     }
 
-  }, [])
+  }, [])*/
+   
 
   return(
     <Router>
@@ -43,7 +46,7 @@ function App(){
         }/>
       </Routes>
     </Router>
-  
+
   );
 
 }

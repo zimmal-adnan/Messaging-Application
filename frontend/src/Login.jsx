@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigate, useLocation, Link} from 'react-router-dom';
+import { VscEye } from "react-icons/vsc";
+import { VscEyeClosed } from "react-icons/vsc";
 
 function Login(props){
     const navigate = useNavigate();
@@ -8,13 +10,16 @@ function Login(props){
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordAgain, setPasswordAgain] = useState("");
-    
-    
+    const [eyeOpen1, setEyeOpen1] = useState(true);
+    const [eyeOpen2, setEyeOpen2] = useState(true);
+  
+  
   //runs when the user clicks the Login/Singup button
   async function handleSubmit(){
     try{
         const endpoint = isSignUp ? 'signup' : 'login';
-        const response = await fetch(`https://messaging-application-c9s5.onrender.com/${endpoint}`, {
+        //`https://messaging-application-c9s5.onrender.com/${endpoint}`
+        const response = await fetch(`http://localhost:8000/${endpoint}`, {
         method: 'POST', 
         //labels on the package the client is sending to the server
         //this header is telling the server that the body of the request is in JSON format (not plain text or form data)
@@ -35,8 +40,8 @@ function Login(props){
     const data = await response.json();
     alert(`Welcome, ${data.username}!`);
     
-    window.localStorage.setItem("isLoggedIn", "true");       
-    window.localStorage.setItem("username", username);
+    //window.localStorage.setItem("isLoggedIn", "true");       
+    //window.localStorage.setItem("username", username);
 
     props.setUsername(username); //store the logged-in username
     props.setIsLoggedIn(true); //if set to true, user is directed to the MainApp
@@ -52,42 +57,56 @@ function Login(props){
   return(
     <div className="login" style={{ height: isSignUp ? "28rem" : "24rem" }}>
       {/*App Title*/}
-        <h2 style ={{ fontSize: "30px"}}>B R E E Z E</h2>
+        <h2 style ={{ fontSize: "30px" }}>B R E E Z E</h2>
 
         {/*Username Input*/}
         <div className="input-container">
           <input 
             value={username} //to be stored in the database in the server
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             onChange={(e) => setUsername(e.target.value)} //updates username as it is typed
             placeholder=' ' 
             required
-          />
+          /> 
           <label>ENTER USERNAME</label>
+          
         </div>  
 
         {/*Password Input*/}
         <div className="input-container" style={{marginTop: '20px'}}>
+          
           <input 
-            type = "password"
+            type = {eyeOpen1 ? "password" : "text"}
             value={password} 
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             onChange={(e) => setPassword(e.target.value)} 
             placeholder=' ' 
             required
           />
           <label>ENTER PASSWORD</label>
+          {eyeOpen1 ? (
+            <button className="eye-icon" onClick={() => setEyeOpen1(!eyeOpen1)}><VscEyeClosed /></button>) : (
+            <button className="eye-icon" onClick={() => setEyeOpen1(!eyeOpen1)}><VscEye /></button>
+          )}
         </div>
 
         {isSignUp && (
           <div className="input-container" style={{marginTop: '20px'}}>
           <input 
-            type = "password"
+            type = {eyeOpen2 ? "password" : "text"}
             value={passwordAgain} 
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             onChange={(e) => setPasswordAgain(e.target.value)} 
             placeholder=' ' 
             required
           />
           <label>ENTER PASSWORD (AGAIN)</label>
+          {eyeOpen2 ? (
+            <button className="eye-icon" onClick={() => setEyeOpen2(!eyeOpen2)}><VscEyeClosed /></button>) : (
+            <button className="eye-icon" onClick={() => setEyeOpen2(!eyeOpen2)}><VscEye /></button>
+          )}
         </div>
+        
         )}
 
         {/*Submit Button*/}
